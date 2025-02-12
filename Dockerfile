@@ -6,6 +6,9 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY . . 
+
+# Copy .env file into the container
+COPY .env .env
 
 EXPOSE 3000

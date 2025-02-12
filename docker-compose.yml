@@ -17,3 +17,5 @@ networks:
   default:
     external:
       name: nginx-proxy
+volumes:
+  classtersync-data
