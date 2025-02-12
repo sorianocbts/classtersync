@@ -1,0 +1,19 @@
+{
+  "name": "classter-sync",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sorianocbts/classtersync.git"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "json2csv": "^6.0.0-alpha.2"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "CBTS",
+  "license": "MIT"
+}

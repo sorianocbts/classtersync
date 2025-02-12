@@ -1,0 +1,25 @@
+# Ignore environment files (sensitive credentials)
+.env
+*.env
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn.lock
+package-lock.json
+
+# Build and compiled output
+build/
+dist/
+
+# Logs and temporary files
+*.log
+logs/
+debug.log
+.DS_Store
+
+# Custom folders (Ensure they exist before ignoring)
+classter_students/
+old/
+problematic_records/
+updated_records/
