@@ -18,4 +18,4 @@ networks:
     external:
       name: nginx-proxy
 volumes:
-  classtersync-data
+  classtersync-data:
