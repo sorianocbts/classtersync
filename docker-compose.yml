@@ -1,0 +1,19 @@
+version: '3'
+services:
+  classtersync:
+    container_name: classtersync
+    restart: always
+    build: .
+    # ports:
+    #   - '3100:3100'
+    expose:
+      - 80
+#     volumes: ['./:/var/www/html']
+    environment:
+      VIRTUAL_HOST: classtersync.cbtseminary.com
+      LETSENCRYPT_HOST: classtersync.cbtseminary.com
+      LETSENCRYPT_EMAIL: course.info@cbtseminary.org
+networks:
+  default:
+    external:
+      name: nginx-proxy
