@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
@@ -12,3 +12,6 @@ COPY . .
 COPY .env .env
 
 EXPOSE 3000
+
+# Start the app
+CMD ["npm", "start"]
