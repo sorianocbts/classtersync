@@ -19,3 +19,4 @@ networks:
       name: nginx-proxy
 volumes:
   classtersync-data:
+      external: true
