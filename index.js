@@ -1,5 +1,4 @@
 const express = require('express');
-// const fetchAndProcessPathwayUsers = require('./updatePathwayUsersThroughClasster');
 const runSyncProcess = require('./updatePathwayUsersThroughClasster.js');
 const runSyncProcess2 = require('./sync2.js');
 require('dotenv').config();
@@ -12,7 +11,7 @@ app.get('/', (req, res) => {
     res.send('ClassterSync Web App is running!');
 });
 
-// Route to trigger the script
+// Route to trigger the first sync process (sync)
 app.get('/sync', async (req, res) => {
     try {
         console.log('🔄 Sync process started...');
@@ -23,16 +22,23 @@ app.get('/sync', async (req, res) => {
         res.status(500).send('❌ An error occurred during sync.');
     }
 });
-// Route to trigger the script
-app.get('/sync2', async (req, res) => {
-    try {
-        console.log('🔄 Sync process started...');
-        await runSyncProcess2();
-        res.send('✅ Sync process completed successfully.');
-    } catch (error) {
-        console.error('❌ Error during sync:', error);
-        res.status(500).send('❌ An error occurred during sync.');
-    }
+
+// Route to trigger the second sync process (sync2) **without waiting**
+app.get('/sync2', (req, res) => {
+    console.log('🔄 Sync2 process started...');
+
+    // Respond to the client immediately
+    res.send('✅ Sync2 process has started and is running in the background.');
+
+    // Run the sync process asynchronously
+    setImmediate(async () => {
+        try {
+            await runSyncProcess2();
+            console.log('✅ Sync2 process completed successfully.');
+        } catch (error) {
+            console.error('❌ Error during Sync2:', error);
+        }
+    });
 });
 
 // Start server
