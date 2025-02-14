@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const _ = require('lodash');
 const { parse } = require('json2csv');
 const fetchAndSaveData = require('./getClassterStudentData'); // Import Classter fetching function
 require('dotenv').config();
@@ -24,6 +25,7 @@ const dateStr = `${(today.getMonth() + 1).toString().padStart(2, '0')}${today.ge
 const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateStr}.json`);
 const updatedRecordsDir = path.join(__dirname, 'updated_records');
 const problematicRecordsDir = path.join(__dirname, 'problematic_records');
+const userNotFoundRecordsDir = path.join(__dirname, 'userNotFound_records');
 
 // Ensure directories exist
 [updatedRecordsDir, problematicRecordsDir].forEach(dir => {
@@ -33,6 +35,7 @@ const problematicRecordsDir = path.join(__dirname, 'problematic_records');
 // Output file paths
 const updatedRecordsPath = path.join(updatedRecordsDir, `updated_records_${dateStr}.csv`);
 const problematicRecordsPath = path.join(problematicRecordsDir, `problematic_records_${dateStr}.csv`);
+const userNotFoundRecordsPath = path.join(userNotFoundRecordsDir, `userNotFound_records_${dateStr}.csv`);
 
 // Function to determine financial status
 async function getFinancialStatus(studentId) {
@@ -68,6 +71,7 @@ async function fetchAndProcessPathwayUsers() {
     let hasMoreData = true;
     const updatedRecords = [];
     const problematicRecords = [];
+    const userNotFoundRecords = [];
     let totalUsersProcessed = 0; // Track total users processed
 
     if (!fs.existsSync(classterStudentsPath)) {
@@ -76,6 +80,13 @@ async function fetchAndProcessPathwayUsers() {
     }
 
     const classterData = JSON.parse(fs.readFileSync(classterStudentsPath, 'utf8'));
+    const checkUser = (userID) => {
+        const classterUser = _.find(classterData, {id: userID});
+        if (!classterUser) {
+            userNotFoundRecords.push(classterUser);
+        };
+        return;
+    }
 
     // Map Classter students using student ID
     const classterMap = new Map(classterData.map(student => {
@@ -109,9 +120,12 @@ async function fetchAndProcessPathwayUsers() {
             console.log(`📥 Fetched ${users.length} users. Processing...`);
 
             for (const user of users) {
-                if (!user.studentID) continue;
-
+                if (!user.studentID) {
+                    continue;
+                };
+                
                 const classterRecord = classterMap.get(String(user.studentID));
+                checkUser(user.studentID);
 
                 if (classterRecord) {
                     // Fetch financial status before updating
@@ -152,6 +166,11 @@ async function fetchAndProcessPathwayUsers() {
         fs.writeFileSync(problematicRecordsPath, parse(problematicRecords), 'utf8');
         console.log(`🔴 Problematic records saved to ${problematicRecordsPath}`);
     }
+
+    if (userNotFoundRecords.length > 0) {
+        fs.writeFileSync(userNotFoundRecordsPath, parse(userNotFoundRecords), 'utf8');
+        console.log(`🔴 userNotFound records saved to ${userNotFoundRecordsPath}`);
+    }
 }
 
 
@@ -173,7 +192,7 @@ async function updatePathwayStudent(lmsId, classterRecord) {
     try {
         await new Promise(resolve => setTimeout(resolve, 500)); // 0.5s delay to avoid 429 errors
         await axios.patch(url, data);
-        console.log(`✅ Updated Pathway user ${lmsId} with fields:`, data.custom_fields);
+        console.log(`✅ Updated Pathway user ${lmsId} with fields:`, /*data.custom_fields*/);
         return { lmsId, ...data.custom_fields, updateStatus: 'success' };
     } catch (error) {
         console.error(`❌ Failed to update Pathway user ${lmsId}:`, error.message);

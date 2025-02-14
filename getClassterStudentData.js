@@ -1,6 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const moment = require('moment');
 require('dotenv').config();
 
 // API URL and headers
@@ -15,10 +16,11 @@ const headers = {
 // Get today's date in MMDDYY format
 const today = new Date();
 const dateStr = `${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}${today.getFullYear().toString().slice(-2)}`;
+const dateHourStr = moment().format('MM-DD-YY-HH');
 
 // Define the correct folder and file path
 const classterStudentsDir = path.join(__dirname, 'classter_students');
-const outputFilePath = path.join(classterStudentsDir, `classter_students_${dateStr}.json`);
+const outputFilePath = path.join(classterStudentsDir, `classter_students_${dateHourStr}.json`);
 
 // Ensure the `classter_students` directory exists
 if (!fs.existsSync(classterStudentsDir)) {
