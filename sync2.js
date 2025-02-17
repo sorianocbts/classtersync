@@ -109,7 +109,7 @@ async function fetchAndProcessPathwayUsers() {
                 "Classter Email": classterRecord.classterEmail,
                 "Classter Profile": `<a href="https://cbts.classter.com/Student/Edit?code=${classterRecord.classterID}" target="_blank">View Student Profile</a>`,
                 "Financial Status": classterRecord.financialStatus || null,
-                "Last Updated": moment.tz("America/Chicago").format('MM-DD-YY hh:mm A') || null
+                "Last Updated": moment.tz("America/Chicago").format('MMMM D, YYYY [at] h:mm A z') || null
             }
         };
 
