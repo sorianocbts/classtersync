@@ -108,7 +108,8 @@ async function fetchAndProcessPathwayUsers() {
                 "CPP Church": classterRecord.cppChurch,
                 "Classter Email": classterRecord.classterEmail,
                 "Classter Profile": `<a href="https://cbts.classter.com/Student/Edit?code=${classterRecord.classterID}" target="_blank">View Student Profile</a>`,
-                "Financial Status": classterRecord.financialStatus || null
+                "Financial Status": classterRecord.financialStatus || null,
+                "Last Updated": moment().format('MM-DD-YY hh:mm A') || null
             }
         };
 
