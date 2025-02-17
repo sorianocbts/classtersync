@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const _ = require('lodash');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const { parse } = require('json2csv');
 const fetchAndSaveData = require('./getClassterStudentData');
 const fetchPathwayUsers = require('./fetchPathwayUsers');
@@ -17,7 +17,7 @@ const CLASSTER_HEADERS = {
 };
 
 // Get current date for file naming
-const dateHourStr = moment().format('MM-DD-YY-HH');
+const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY hh:mm A');
 
 // File paths
 const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateHourStr}.json`);
@@ -109,7 +109,7 @@ async function fetchAndProcessPathwayUsers() {
                 "Classter Email": classterRecord.classterEmail,
                 "Classter Profile": `<a href="https://cbts.classter.com/Student/Edit?code=${classterRecord.classterID}" target="_blank">View Student Profile</a>`,
                 "Financial Status": classterRecord.financialStatus || null,
-                "Last Updated": moment().format('MM-DD-YY hh:mm A') || null
+                "Last Updated": moment.tz("America/Chicago").format('MM-DD-YY hh:mm A') || null
             }
         };
 
