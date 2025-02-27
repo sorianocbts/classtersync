@@ -10,7 +10,7 @@ const LIMIT = 100; // Max limit per request
 const DIRECTORY = 'pathway_users'; // Directory to save the file
 
 // Generate dynamic filename with timestamp (MM-DD-YY-HH)
-const timestamp = moment.tz("America/Chicago").format('MM-DD-YY hh:mm A');
+const timestamp = moment.tz("America/Chicago").format('MM-DD-YY_HH-mm_A');
 const FILE_PATH = `${DIRECTORY}/pathway_users_${timestamp}.json`;
 
 let allUsers = [];

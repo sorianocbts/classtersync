@@ -16,7 +16,7 @@ const headers = {
 // Get today's date in MMDDYY format
 const today = new Date();
 const dateStr = `${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}${today.getFullYear().toString().slice(-2)}`;
-const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY hh:mm A');
+const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH-mm_A');
 
 // Define the correct folder and file path
 const classterStudentsDir = path.join(__dirname, 'classter_students');

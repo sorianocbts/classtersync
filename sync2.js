@@ -17,7 +17,7 @@ const CLASSTER_HEADERS = {
 };
 
 // Get current date for file naming
-const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY hh:mm A');
+const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH-mm_A');
 
 // File paths
 const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateHourStr}.json`);

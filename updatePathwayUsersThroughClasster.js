@@ -4,6 +4,7 @@ const axios = require('axios');
 const _ = require('lodash');
 const { parse } = require('json2csv');
 const fetchAndSaveData = require('./getClassterStudentData'); // Import Classter fetching function
+const moment = require('moment-timezone');
 require('dotenv').config();
 
 // API Credentials
@@ -14,15 +15,16 @@ const CLASSTER_HEADERS = {
     'accept': 'application/json',
     'X-Institute-Tenant': process.env.X_Institute_Tenant, 
     'X-Institute-Period': '1',
-    'Authorization': process.env.CLASSTER_TOKEN    
+    'Authorization': process.env.CLASSTER_TOKEN
 };
 
 // Get today's date for file naming (MMDDYY format)
 const today = new Date();
 const dateStr = `${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}${today.getFullYear().toString().slice(-2)}`;
+const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH-mm_A');
 
 // Define folders
-const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateStr}.json`);
+const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateHourStr}.json`);
 const updatedRecordsDir = path.join(__dirname, 'updated_records');
 const problematicRecordsDir = path.join(__dirname, 'problematic_records');
 const userNotFoundRecordsDir = path.join(__dirname, 'userNotFound_records');
