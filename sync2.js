@@ -71,16 +71,35 @@ async function fetchAndProcessPathwayUsers() {
     const updatedUsers = [];
     const problematicRecords = [];
 
+// Replace it with this:
     const classterMap = new Map(classterData.map(student => {
         const cpp = student.dynamicField5 ? student.dynamicField5.trim() : null;
+
+        // Grab the raw drop-down values
+        const drop5 = student.customFieldDropDown5 || null;
+        const drop6 = student.customFieldDropDown6 || null;
+
+        // Build pricingCategory = drop5 + (“_WC” or “_JC” only when drop6 matches)
+        let pricingCategory = null;
+        if (drop5) {
+            if (drop6 === "William Carey") {
+            pricingCategory = `${drop5}_WC`;
+            } else if (drop6 === "John Cotton") {
+            pricingCategory = `${drop5}_JC`;
+            } else {
+            pricingCategory = drop5;
+            }
+        }
+
         return [
             String(student.id), {
-                registrationStatus: student.registrationStatus || null,
-                program: student.grade || null,
-                cpp: cpp,
-                cppChurch: cpp ? student.freeTextField || null : null,
-                classterEmail: student.userEmail || null,
-                classterID: student.id || null
+            registrationStatus: student.registrationStatus || null,
+            program:            student.grade              || null,
+            cpp:                cpp,
+            cppChurch:          cpp ? student.freeTextField || null : null,
+            classterEmail:      student.userEmail          || null,
+            classterID:         student.id                 || null,
+            pricingCategory:    pricingCategory            || null
             }
         ];
     }));
@@ -109,7 +128,8 @@ async function fetchAndProcessPathwayUsers() {
                 "Classter Email": classterRecord.classterEmail,
                 "Classter Profile": `<a href="https://cbts.classter.com/Student/Edit?code=${classterRecord.classterID}" target="_blank">View Student Profile</a>`,
                 "Financial Status": classterRecord.financialStatus || null,
-                "Last Updated": moment.tz("America/Chicago").format('MMMM D, YYYY [at] h:mm A z') || null
+                "Last Updated": moment.tz("America/Chicago").format('MMMM D, YYYY [at] h:mm A z') || null,
+                "pricing_category": classterRecord.pricingCategory
             }
         };
 
