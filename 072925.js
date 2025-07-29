@@ -79,7 +79,6 @@ async function fetchAndProcessPathwayUsers() {
         const drop5 = student.customFieldDropDown5 || null;
         const drop6 = student.customFieldDropDown6 || null;
 
-        //Smester fee
         const semester_fee = student.dynamicField4 ? student.dynamicField4.trim() : null;
 
         // Build pricingCategory = drop5 + (“_WC” or “_JC” only when drop6 matches)
@@ -103,7 +102,7 @@ async function fetchAndProcessPathwayUsers() {
             classterEmail:      student.userEmail          || null,
             classterID:         student.id                 || null,
             pricingCategory:    pricingCategory            || null,
-            semester_fee:       semester_fee
+            semester_fee:      semester_fee
             }
         ];
     }));
