@@ -80,7 +80,7 @@ async function fetchAndProcessPathwayUsers() {
         const drop6 = student.customFieldDropDown6 || null;
 
         //Smester fee
-        const semester_fee = student.dynamicField4 ? student.dynamicField4.trim() : null;
+        // const semester_fee = student.dynamicField4 ? student.dynamicField4.trim() : null;
 
         // Build pricingCategory = drop5 + (“_WC” or “_JC” only when drop6 matches)
         let pricingCategory = null;
@@ -102,8 +102,7 @@ async function fetchAndProcessPathwayUsers() {
             cppChurch:          cpp ? student.freeTextField || null : null,
             classterEmail:      student.userEmail          || null,
             classterID:         student.id                 || null,
-            pricingCategory:    pricingCategory            || null,
-            semester_fee:       semester_fee
+            pricingCategory:    pricingCategory            || null
             }
         ];
     }));
@@ -133,8 +132,7 @@ async function fetchAndProcessPathwayUsers() {
                 "Classter Profile": `<a href="https://cbts.classter.com/Student/Edit?code=${classterRecord.classterID}" target="_blank">View Student Profile</a>`,
                 "Financial Status": classterRecord.financialStatus || null,
                 "Last Updated": moment.tz("America/Chicago").format('MMMM D, YYYY [at] h:mm A z') || null,
-                "pricing_category": classterRecord.pricingCategory,
-                "semester_fee": classterRecord.semester_fee
+                "pricing_category": classterRecord.pricingCategory
             }
         };
 
