@@ -13,8 +13,22 @@ const CLASSTER_HEADERS = {
     'accept': 'application/json',
     'X-Institute-Tenant': process.env.X_Institute_Tenant,
     'X-Institute-Period': '1',
-    'Authorization': process.env.CLASSTER_TOKEN
+    'Authorization': process.env.CLASSTER_TOKEN    
 };
+
+// Get current date for file naming
+const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH-mm_A');
+
+// File paths
+const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateHourStr}.json`);
+const pathwayUsersPath = path.join(__dirname, 'pathway_users', `pathway_users_${dateHourStr}.json`);
+const updatedUsersPath = path.join(__dirname, 'updated_users', `updated_users_${dateHourStr}.json`);
+const problematicRecordsPath = path.join(__dirname, 'problematic_records', `problematic_records_${dateHourStr}.csv`);
+
+// Ensure necessary directories exist
+['updated_users'].forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
 
 // Function to determine financial status
 async function getFinancialStatus(studentId) {
@@ -40,7 +54,7 @@ async function getFinancialStatus(studentId) {
     }
 }
 
-async function fetchAndProcessPathwayUsers(classterStudentsPath, pathwayUsersPath, updatedUsersPath, problematicRecordsPath, dateHourStr) {
+async function fetchAndProcessPathwayUsers() {
     if (!fs.existsSync(classterStudentsPath)) {
         console.error(`❌ Classter students file not found: ${classterStudentsPath}`);
         return;
@@ -57,33 +71,39 @@ async function fetchAndProcessPathwayUsers(classterStudentsPath, pathwayUsersPat
     const updatedUsers = [];
     const problematicRecords = [];
 
+// Replace it with this:
     const classterMap = new Map(classterData.map(student => {
         const cpp = student.dynamicField5 ? student.dynamicField5.trim() : null;
+
+        // Grab the raw drop-down values
         const drop5 = student.customFieldDropDown5 || null;
         const drop6 = student.customFieldDropDown6 || null;
+
+        //Smester fee
         const semester_fee = student.dynamicField4 ? student.dynamicField4.trim() : null;
 
+        // Build pricingCategory = drop5 + (“_WC” or “_JC” only when drop6 matches)
         let pricingCategory = null;
         if (drop5) {
             if (drop6 === "William Carey") {
-                pricingCategory = `${drop5}_WC`;
+            pricingCategory = `${drop5}_WC`;
             } else if (drop6 === "John Cotton") {
-                pricingCategory = `${drop5}_JC`;
+            pricingCategory = `${drop5}_JC`;
             } else {
-                pricingCategory = drop5;
+            pricingCategory = drop5;
             }
         }
 
         return [
             String(student.id), {
-                registrationStatus: student.registrationStatus || null,
-                program: student.grade || null,
-                cpp: cpp,
-                cppChurch: cpp ? student.freeTextField || null : null,
-                classterEmail: student.userEmail || null,
-                classterID: student.id || null,
-                pricingCategory: pricingCategory || null,
-                semester_fee: semester_fee
+            registrationStatus: student.registrationStatus || null,
+            program:            student.grade              || null,
+            cpp:                cpp,
+            cppChurch:          cpp ? student.freeTextField || null : null,
+            classterEmail:      student.userEmail          || null,
+            classterID:         student.id                 || null,
+            pricingCategory:    pricingCategory            || null,
+            semester_fee:    semester_fee
             }
         ];
     }));
@@ -101,6 +121,7 @@ async function fetchAndProcessPathwayUsers(classterStudentsPath, pathwayUsersPat
         const financialStatus = await getFinancialStatus(user.studentID);
         classterRecord.financialStatus = financialStatus;
 
+        // Prepare update object
         const updatedUser = {
             lmsId: user.id,
             custom_fields: {
@@ -111,15 +132,16 @@ async function fetchAndProcessPathwayUsers(classterStudentsPath, pathwayUsersPat
                 "Classter Email": classterRecord.classterEmail,
                 "Classter Profile": `<a href="https://cbts.classter.com/Student/Edit?code=${classterRecord.classterID}" target="_blank">View Student Profile</a>`,
                 "Financial Status": classterRecord.financialStatus || null,
-                "Last Updated": moment.tz("America/Chicago").format('MMMM D, YYYY [at] h:mm A z'),
-                pricing_category: classterRecord.pricingCategory,
-                semester_fee: classterRecord.semester_fee
+                "Last Updated": moment.tz("America/Chicago").format('MMMM D, YYYY [at] h:mm A z') || null,
+                "pricing_category": classterRecord.pricingCategory,
+                "semester_fee": classterRecord.semester_fee
             }
         };
 
         updatedUsers.push(updatedUser);
     }
 
+    // Save all updates to JSON file
     fs.writeFileSync(updatedUsersPath, JSON.stringify(updatedUsers, null, 2), 'utf8');
     console.log(`🟢 Saved updated user records to ${updatedUsersPath}`);
 
@@ -128,27 +150,29 @@ async function fetchAndProcessPathwayUsers(classterStudentsPath, pathwayUsersPat
         console.log(`🔴 Problematic records saved to ${problematicRecordsPath}`);
     }
 
+    // Now process updates in batches
     await batchUpdatePathwayUsers(updatedUsers);
 }
 
+// Function to batch update users (100 at a time)
 async function batchUpdatePathwayUsers(updatedUsers) {
     const batchSize = 100;
     const url = `https://www.cbtspathway.org/api/v3/users/batch?api_key=${process.env.PATHWAY_API_KEY}`;
 
     for (let i = 0; i < updatedUsers.length; i += batchSize) {
         const batch = updatedUsers.slice(i, i + batchSize).map(user => ({
-            id: user.lmsId,
+            id: user.lmsId, // Ensure this matches the Pathway ID
             attributes: {
-                custom_fields: user.custom_fields || {}
+                custom_fields: user.custom_fields || {} // Ensure custom fields are properly wrapped
             }
         }));
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Delay to avoid rate limits
             const response = await axios.patch(url, batch, {
                 headers: { "Content-Type": "application/json" }
             });
-
+            
             console.log(`✅ Successfully updated ${batch.length} users (Batch ${i / batchSize + 1})`);
         } catch (error) {
             console.error(`❌ Failed to update batch ${i / batchSize + 1}:`, error.message);
@@ -158,23 +182,11 @@ async function batchUpdatePathwayUsers(updatedUsers) {
 
 async function runSyncProcess2() {
     try {
-        const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH-mm_A');
-
-        const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateHourStr}.json`);
-        const pathwayUsersPath = path.join(__dirname, 'pathway_users', `pathway_users_${dateHourStr}.json`);
-        const updatedUsersPath = path.join(__dirname, 'updated_users', `updated_users_${dateHourStr}.json`);
-        const problematicRecordsPath = path.join(__dirname, 'problematic_records', `problematic_records_${dateHourStr}.csv`);
-
-        ['updated_users'].forEach(dir => {
-            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        });
-
         if (!fs.existsSync(classterStudentsPath)) {
             console.log(`❌ Classter students file not found. Fetching data first...`);
             await fetchAndSaveData();
         }
-
-        await fetchAndProcessPathwayUsers(classterStudentsPath, pathwayUsersPath, updatedUsersPath, problematicRecordsPath, dateHourStr);
+        await fetchAndProcessPathwayUsers();
     } catch (error) {
         console.error("❌ Error during execution:", error);
     }
