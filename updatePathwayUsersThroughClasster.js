@@ -21,7 +21,7 @@ const CLASSTER_HEADERS = {
 // Get today's date for file naming (MMDDYY format)
 const today = new Date();
 const dateStr = `${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}${today.getFullYear().toString().slice(-2)}`;
-const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH-mm_A');
+const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH_A');
 
 // Define folders
 const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateHourStr}.json`);
