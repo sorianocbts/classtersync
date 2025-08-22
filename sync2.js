@@ -276,8 +276,8 @@ async function batchUpdatePathwayUsers(updatedUsers) {
 async function runSyncProcess2() {
 
     try {
-        // const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH_A');
-        const dateHourStr = '-';
+        const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH_A');
+        // const dateHourStr = '-';
             console.log("💾 Using dateHourStr:", dateHourStr);
 
         const classterStudentsPath = path.join(__dirname, 'classter_students', `classter_students_${dateHourStr}.json`);
