@@ -273,7 +273,7 @@ async function batchUpdatePathwayUsers(updatedUsers) {
     }
 }
 
-async function runSyncProcess2() {
+async function runSyncProcess3() {
 
     try {
         // const dateHourStr = moment.tz("America/Chicago").format('MM-DD-YY_HH_A');
@@ -300,4 +300,4 @@ async function runSyncProcess2() {
     }
 }
 
-module.exports = runSyncProcess2;
+module.exports = runSyncProcess3;

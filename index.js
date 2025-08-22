@@ -1,6 +1,7 @@
 const express = require('express');
 const runSyncProcess = require('./updatePathwayUsersThroughClasster.js');
 const runSyncProcess2 = require('./sync2.js');
+const runSyncProcess3 = require('./sync3.js');
 require('dotenv').config();
 
 const app = express();
@@ -35,6 +36,23 @@ app.get('/sync2', (req, res) => {
         try {
             await runSyncProcess2();
             console.log('✅ Sync2 process completed successfully.');
+        } catch (error) {
+            console.error('❌ Error during Sync2:', error);
+        }
+    });
+});
+
+app.get('/sync3', (req, res) => {
+    console.log('🔄 Sync3 process started...');
+
+    // Respond to the client immediately
+    res.send('✅ Sync3 process has started and is running in the background.');
+
+    // Run the sync process asynchronously
+    setImmediate(async () => {
+        try {
+            await runSyncProcess3();
+            console.log('✅ Sync3 process completed successfully.');
         } catch (error) {
             console.error('❌ Error during Sync2:', error);
         }
